@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.iskandar.gdx.dao.UserRoleMapper" >
+  <resultMap id="BaseResultMap" type="com.iskandar.gdx.po.UserRole" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="role_id" property="roleId" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+    <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, user_id, role_id, create_date, update_date
+  </sql>
+  <insert id="saveBatch" parameterType="list">
+    INSERT INTO t_user_role (user_id, role_id, create_date, update_date) VALUES
+    <foreach collection="list" index="index" item="item" separator=",">
+      (#{item.userId}, #{item.roleId}, #{item.createDate}, #{item.updateDate})
+    </foreach>
+  </insert>
+
+  <delete id="deleteUserRoleBatch">
+    DELETE FROM t_user_role WHERE user_id=#{userId}
+  </delete>
+  <select id="queryUserRolesByUserId" resultType="int">
+    select count(*) from t_user_role WHERE user_id=#{userId}
+  </select>
+
+  <select id="queryUserRolesByRoleId" resultType="int">
+    select count(*) from t_user_role WHERE role_id=#{roleId}
+  </select>
+  <delete id="deleteUserRoleBatch2">
+    DELETE FROM t_user_role WHERE role_id=#{roleId}
+  </delete>
+</mapper>

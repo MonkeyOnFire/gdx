@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.iskandar.gdx.dao.UserMapper" >
+    <resultMap id="BaseResultMap" type="com.iskandar.gdx.po.User" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="user_name" property="userName" jdbcType="VARCHAR" />
+        <result column="user_pwd" property="userPwd" jdbcType="VARCHAR" />
+        <result column="true_name" property="trueName" jdbcType="VARCHAR" />
+        <result column="email" property="email" jdbcType="VARCHAR" />
+        <result column="head_picture" property="headPicture" jdbcType="VARCHAR" />
+        <result column="phone" property="phone" jdbcType="VARCHAR" />
+        <result column="is_valid" property="isValid" jdbcType="INTEGER" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+        <result column="update_date" property="updateDate" jdbcType="TIMESTAMP" />
+    </resultMap>
+    <sql id="Base_Column_List" >
+        id, user_name, user_pwd, true_name, email, head_picture, phone, is_valid, create_date, update_date
+    </sql>
+    <!-- 通过用户名查找用户 -->
+    <select id="queryUserByName" parameterType="string" resultType="user">
+        SELECT
+        u.id,
+        u.user_name as userName,
+        u.user_pwd as userPwd,
+        u.true_name as trueName,
+        u.email,
+        u.head_picture as headPicture,
+        u.phone,
+        u.is_valid as isValid,
+        u.create_date as createDate,
+        u.update_date as updateDate
+        FROM
+        t_user AS u
+        WHERE u.is_valid=1 and u.user_name = #{userName}
+    </select>
+    <!-- 通过用户ID查找用户 -->
+    <select id="queryUserById" parameterType="int" resultType="user">
+        SELECT
+        u.id,
+        u.user_name as userName,
+        u.user_pwd as userPwd,
+        u.true_name as trueName,
+        u.email,
+        u.head_picture as headPicture,
+        u.phone,
+        u.is_valid as isValid,
+        u.create_date as createDate,
+        u.update_date as updateDate
+        FROM
+        t_user AS u
+        WHERE u.is_valid=1 and u.id = #{id}
+    </select>
+    <select id="queryCustomerManagers" resultType="map">
+        SELECT
+        u.id,
+        u.true_name as trueName
+        FROM
+        t_user AS u
+        LEFT JOIN t_user_role AS ur ON ur.user_id = u.id
+        WHERE
+        u.is_valid = 1 AND
+        ur.role_id = 3
+    </select>
+    <update id="updateUserPwd" parameterType="user">
+        UPDATE t_user SET user_pwd=#{userPwd} WHERE id=#{id}
+    </update>
+    <select id="queryUserByParams" parameterType="UserQuery" resultType="userDto">
+        SELECT
+        u.id,
+        u.user_name AS userName,
+        u.user_pwd as userPwd,
+        u.true_name as trueName,
+        u.email,
+        u.head_picture as headPicture,
+        u.phone,
+        u.is_valid as isValid,
+        u.create_date as createDate,
+        u.update_date as updateDate,
+        GROUP_CONCAT(r.role_name)as roleName,
+        GROUP_CONCAT(r.id)as roleIdsStr
+        FROM
+        t_user AS u
+        LEFT JOIN t_user_role AS ur ON ur.user_id = u.id
+        LEFT JOIN t_role AS r ON r.id = ur.role_id
+        <where>
+            u.is_valid = 1
+            <if test="null!=userName and ''!=userName">
+                and u.user_name like concat('%',#{userName},'%')
+            </if>
+            <if test="null!=email and ''!=email">
+                and u.email like concat('%',#{email},'%')
+            </if>
+            <if test="null!=phone and ''!=phone">
+                and u.phone like concat('%',#{phone},'%')
+            </if>
+        </where>
+        GROUP BY u.id
+    </select>
+    <insert id="save" parameterType="com.iskandar.gdx.po.User">
+      insert into t_user
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+          <if test="id != null">
+              id,
+          </if>
+          <if test="userName != null" >
+              user_name,
+          </if>
+          <if test="userPwd != null" >
+              user_pwd,
+          </if>
+          <if test="trueName != null" >
+              true_name,
+          </if>
+          <if test="email != null" >
+              email,
+          </if>
+          <if test="headPicture != null" >
+              headPicture,
+          </if>
+          <if test="phone != null" >
+              phone,
+          </if>
+          <if test="isValid != null" >
+              is_valid,
+          </if>
+          <if test="createDate != null" >
+              create_date,
+          </if>
+          <if test="updateDate != null" >
+              update_date,
+          </if>
+      </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="userName != null" >
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userPwd != null" >
+                #{userPwd,jdbcType=VARCHAR},
+            </if>
+            <if test="trueName != null" >
+                #{trueName,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null" >
+                #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="headPicture != null" >
+                #{headPicture,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null" >
+                #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="isValid != null" >
+                #{isValid,jdbcType=INTEGER},
+            </if>
+            <if test="createDate != null" >
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateDate != null" >
+                #{updateDate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+
+
+    </insert>
+    <update id="update" parameterType="com.iskandar.gdx.po.User">
+        update t_user
+        <set >
+            <if test="userName != null" >
+                user_name = #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="userPwd != null" >
+                user_pwd = #{userPwd,jdbcType=VARCHAR},
+            </if>
+            <if test="trueName != null" >
+                true_name = #{trueName,jdbcType=VARCHAR},
+            </if>
+            <if test="email != null" >
+                email = #{email,jdbcType=VARCHAR},
+            </if>
+            <if test="headPicture != null" >
+                #{headPicture,jdbcType=VARCHAR},
+            </if>
+            <if test="phone != null" >
+                phone = #{phone,jdbcType=VARCHAR},
+            </if>
+            <if test="isValid != null" >
+                is_valid = #{isValid,jdbcType=INTEGER},
+            </if>
+            <if test="createDate != null" >
+                create_date = #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateDate != null" >
+                update_date = #{updateDate,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="delete">
+      UPDATE t_user set is_valid=0 where id=#{id}
+    </update>
+
+
+</mapper>
